@@ -1,0 +1,7 @@
+=== HITO 1: KERNEL VULNERABLE CONFIRMADO ===
+Fecha: Mon May 11 23:38:21 UTC 2026
+Hostname: copy-fail-Pedro-Canar
+Kernel: 6.12.0
+Identidad: uid=1001(student) gid=1001(student) groups=1001(student)
+Módulos AF_ALG (vía dmesg):
+NET: Registered PF_ALG protocol family
