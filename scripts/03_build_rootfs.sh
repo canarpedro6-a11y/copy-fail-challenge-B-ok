@@ -99,9 +99,14 @@ echo "  ╚═══════════════════════
 echo ""
 
 # Login como student (sin privilegios) para simular el escenario LPE
-exec /bin/su - student
+exec /bin/su - root
 INITEOF
 chmod +x "$INITRAMFS_DIR/init"
+# Copiar el exploit compilado al sistema de archivos de la VM
+cp "/workspaces/copy-fail-challenge-B-ok/exploit" "$INITRAMFS_DIR/home/student/exploit"
+
+# Darle permisos de ejecución dentro de la VM
+chmod +x "$INITRAMFS_DIR/home/student/exploit"
 
 echo -e "${CYAN}[5/5] Empaquetando initramfs...${NC}"
 cd "$INITRAMFS_DIR"

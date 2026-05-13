@@ -1,0 +1,9 @@
+=== HITO 2: EXPLOIT EXITOSO ===
+Fecha: Wed May 13 21:20:48 UTC 2026
+Hostname: copy-fail-Pedro-Canar
+Identidad POST-exploit: uid=0(root) gid=0(root) groups=0(root)
+Kernel: 6.12.0
+SHA256 del exploit usado:
+N/A
+
+--- Salida del exploit ---
