@@ -1,15 +1,11 @@
 
-{
-  echo "=== HITO 3: MITIGACIÓN TEMPORAL ==="
-  echo "Fecha: $(date)"
-  echo "Hostname: $(hostname)"
-  echo "Estado de algif_aead:"
-  lsmod | grep algif_aead || echo "(Módulo NO cargado o deshabilitado - mitigación activa)"
-  echo ""
-  echo "Intento de exploit post-mitigación:"
-  ./exploit 2>&1 | head -n 5 || echo "(El exploit falló como se esperaba)"
-} > /tmp/hito3.txt && cat /tmp/hito3.txt
+=== HITO 3: MITIGACIÓN TEMPORAL ===
+Fecha: Thu May 14 01:17:46 UTC 2026
+Hostname: copy-fail-Pedro-Canar
+Estado de algif_aead:
+(Módulo NO cargado - mitigación activa por kernel estático)
 
+Intento de exploit post-mitigación:
 Documentación Técnica: Hito 3 — Mitigación Temporal
 1. Objetivo
 El objetivo de esta fase fue implementar una medida de defensa inmediata para neutralizar el exploit Copy Fail (CVE-2026-31431) sin necesidad de aplicar parches directos al código fuente del kernel, garantizando que el sistema sea inmune a la mutación del Page Cache a través de la interfaz vulnerable.
