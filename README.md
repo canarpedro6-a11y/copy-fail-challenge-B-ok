@@ -1,3 +1,7 @@
+
+<img width="567" height="278" alt="exploit ejecutandose" src="https://github.com/user-attachments/assets/c8bcef64-a3b4-4fc3-9b35-67ce501ffca0" />
+<img width="728" height="227" alt="modoroot" src="https://github.com/user-attachments/assets/3a32964f-1151-4ab7-acd9-ed654d896f36" />
+
 # Copy Fail Lab — CVE-2026-31431 (v2)
 
 Devcontainer reproducible para experimentar con la vulnerabilidad **Copy Fail**
