@@ -1,3 +1,9 @@
+
+
+
+
+
+
 # Copy Fail Lab — CVE-2026-31431 (v2)
 
 Devcontainer reproducible para experimentar con la vulnerabilidad **Copy Fail**
@@ -171,3 +177,4 @@ git add evidence/hito1_vuln_confirmed.txt
 git commit -m "hito-1: kernel vulnerable confirmado - $(date +%Y-%m-%dT%H:%M)"
 git tag -a hito-1 -m "Kernel vulnerable corriendo, algif_aead confirmado"
 git push origin main --tags
+

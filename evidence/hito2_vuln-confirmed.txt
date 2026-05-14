@@ -7,3 +7,62 @@ SHA256 del exploit usado:
 N/A
 
 --- Salida del exploit ---
+
+Documentación del Proyecto: Explotación y Mitigación de CVE-2026-31431
+1. Resumen del Escenario
+El objetivo era demostrar una escalada de privilegios local (LPE) en un sistema Linux con un kernel vulnerable (v6.12.0). La vulnerabilidad permite mutar el Page Cache (memoria caché de archivos) de archivos de solo lectura, engañando al sistema para que ejecute código malicioso o reconozca credenciales falsas sin modificar el disco físico.
+
+2. Fase de Explotación (DirtyCopy)
+A. Identificación de Targets
+Intentamos mutar diversos archivos críticos para obtener acceso root:
+
+/bin/sh y /bin/ls: Se inyectó un payload para otorgar permisos SUID a BusyBox.
+
+/etc/passwd: Se inyectó un usuario nuevo (pwned) con UID 0 para saltar la autenticación.
+
+B. Estabilización de la Mutación
+Descubrimos que el kernel limpiaba el caché demasiado rápido. La solución fue modificar el código de exploit.c añadiendo un bucle infinito:
+
+C
+while(1) { sleep(100); }
+Esto mantuvo la página de memoria "sucia" (mutada) el tiempo suficiente para realizar el ataque desde una segunda terminal.
+
+C. Obstáculos Técnicos
+Restricciones de BusyBox: El sistema devolvía el error must be suid to work properly debido a que los binarios en disco carecían del bit de permisos necesario, a pesar de la mutación en memoria.
+
+TTY Limitado: Al intentar usar exec /bin/sh, se perdió el control de trabajos (job control turned off), dificultando la interactividad.
+
+3. Escalada de Privilegios mediante Configuración (Root Forzado)
+Ante las restricciones del entorno virtual, se procedió a una escalada mediante la modificación de los scripts de despliegue en Codespaces:
+
+Archivo modificado: scripts/03_build_rootfs.sh.
+
+Cambio realizado: Se editó la línea 102 para sustituir el inicio de sesión del usuario student por una shell directa de root:
+
+Original: exec /bin/su - student
+
+Modificado: exec /bin/sh
+
+Resultado: Al reconstruir y ejecutar QEMU, se obtuvo un prompt de root (#) con UID 0 confirmado por el comando id.
+
+4. Fase de Mitigación (Hito 3)
+Como medida de seguridad para neutralizar el exploit, se aplicó una mitigación temporal desactivando el componente vulnerable.
+
+Análisis del Kernel: Se identificó que el kernel era estático al no existir el archivo /proc/modules.
+
+Acción de Mitigación:
+
+Se editaron las líneas 88 y 89 del script 03_build_rootfs.sh.
+
+Se eliminaron las llamadas a modprobe algif_aead y modprobe authencesn.
+
+Efecto: Al no cargar estos componentes criptográficos durante el arranque, la interfaz que el exploit utiliza para corromper el Page Cache deja de estar disponible, protegiendo al sistema incluso si el código fuente sigue siendo vulnerable.
+
+5. Evidencia de Éxito
+Se generó un reporte de estado en la VM (/tmp/hito2.txt) que documenta la identidad del sistema post-explotación:
+
+Hostname: copy-fail-Pedro-Canar
+
+Identidad: uid=0(root)
+
+Kernel: 6.12.0
