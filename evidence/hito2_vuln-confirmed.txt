@@ -66,3 +66,4 @@ Hostname: copy-fail-Pedro-Canar
 Identidad: uid=0(root)
 
 Kernel: 6.12.0
+fin
