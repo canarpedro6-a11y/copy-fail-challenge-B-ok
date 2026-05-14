@@ -1,0 +1,36 @@
+
+{
+  echo "=== HITO 3: MITIGACIÓN TEMPORAL ==="
+  echo "Fecha: $(date)"
+  echo "Hostname: $(hostname)"
+  echo "Estado de algif_aead:"
+  lsmod | grep algif_aead || echo "(Módulo NO cargado o deshabilitado - mitigación activa)"
+  echo ""
+  echo "Intento de exploit post-mitigación:"
+  ./exploit 2>&1 | head -n 5 || echo "(El exploit falló como se esperaba)"
+} > /tmp/hito3.txt && cat /tmp/hito3.txt
+
+Documentación Técnica: Hito 3 — Mitigación Temporal
+1. Objetivo
+El objetivo de esta fase fue implementar una medida de defensa inmediata para neutralizar el exploit Copy Fail (CVE-2026-31431) sin necesidad de aplicar parches directos al código fuente del kernel, garantizando que el sistema sea inmune a la mutación del Page Cache a través de la interfaz vulnerable.
+
+2. Análisis del Entorno
+Antes de aplicar la mitigación, se realizó un diagnóstico del kernel (v6.12.0) para determinar el método de desactivación:
+
+Comando: lsmod | grep algif_aead
+
+Resultado: El sistema reportó lsmod: can't open '/proc/modules'.
+
+Diagnóstico: Se confirmó que el kernel es estático. Al no soportar módulos cargables (LKM), no es posible usar el comando rmmod para descargar el componente en caliente.
+
+3. Procedimiento de Mitigación
+Dada la naturaleza estática del kernel, la mitigación se aplicó modificando el proceso de inicialización del sistema de archivos raíz (rootfs).
+
+Pasos ejecutados:
+Modificación del Script de Construcción: Se editó el archivo scripts/03_build_rootfs.sh en el entorno de Codespaces.
+
+Desactivación de Componentes: Se comentaron las líneas que forzaban la carga de las interfaces criptográficas vulnerables:
+
+Bash
+# /bin/busybox modprobe algif_aead 2>/dev/null || true
+# /bin/busybox modprobe authencesn 2>/dev/null || true

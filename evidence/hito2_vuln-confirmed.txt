@@ -45,18 +45,6 @@ Modificado: exec /bin/sh
 
 Resultado: Al reconstruir y ejecutar QEMU, se obtuvo un prompt de root (#) con UID 0 confirmado por el comando id.
 
-4. Fase de Mitigación (Hito 3)
-Como medida de seguridad para neutralizar el exploit, se aplicó una mitigación temporal desactivando el componente vulnerable.
-
-Análisis del Kernel: Se identificó que el kernel era estático al no existir el archivo /proc/modules.
-
-Acción de Mitigación:
-
-Se editaron las líneas 88 y 89 del script 03_build_rootfs.sh.
-
-Se eliminaron las llamadas a modprobe algif_aead y modprobe authencesn.
-
-Efecto: Al no cargar estos componentes criptográficos durante el arranque, la interfaz que el exploit utiliza para corromper el Page Cache deja de estar disponible, protegiendo al sistema incluso si el código fuente sigue siendo vulnerable.
 
 5. Evidencia de Éxito
 Se generó un reporte de estado en la VM (/tmp/hito2.txt) que documenta la identidad del sistema post-explotación:
