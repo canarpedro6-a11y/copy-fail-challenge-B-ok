@@ -85,8 +85,8 @@ mount -t devtmpfs none /dev 2>/dev/null || /bin/busybox mdev -s
 mount -t tmpfs none /tmp
 
 # Cargar módulos crypto vulnerables si están como módulos
-#/bin/busybox modprobe algif_aead 2>/dev/null || true
-#/bin/busybox modprobe authencesn 2>/dev/null || true
+/bin/busybox modprobe algif_aead 2>/dev/null || true
+/bin/busybox modprobe authencesn 2>/dev/null || true
 
 # Hostname con el STUDENT_ID embebido (anti-copia)
 hostname "copy-fail-${STUDENT_ID}"
@@ -99,7 +99,7 @@ echo "  ╚═══════════════════════
 echo ""
 
 # Login como student (sin privilegios) para simular el escenario LPE
-exec /bin/su - root
+exec /bin/su - student
 INITEOF
 chmod +x "$INITRAMFS_DIR/init"
 # Copiar el exploit compilado al sistema de archivos de la VM

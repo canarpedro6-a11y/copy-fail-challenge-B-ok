@@ -1,0 +1,49 @@
+=== HITO 4: VALIDACIÓN DE SEGURIDAD ===
+Fecha: Thu May 14 02:21:56 UTC 2026
+Kernel Parcheado: 6.12.0
+Usuario Inicial: student (id=1001)
+---------------------------------------
+[+] Lanzando exploit con límite de 5s...
+---------------------------------------
+Usuario Final: udent (id=1001)
+[Veredicto] ÉXITO: El parche detuvo la escalada de privilegios.
+
+Documentación: Hito 4 - Mitigación Permanente del CVE-2026-31431
+1. Identificación del Problema
+La vulnerabilidad CVE-2026-31431, conocida como "Copy Fail", residía en el subsistema de criptografía del kernel de Linux, específicamente en la interfaz AF_ALG para algoritmos AEAD (Authenticated Encryption with Associated Data).
+
+El error se originó por una optimización de rendimiento introducida en 2017 que permitía operaciones in-place. En estas operaciones, el kernel utilizaba el mismo buffer para la entrada y la salida de datos, lo que permitía a un atacante manipular el Page Cache mediante mutaciones de memoria no controladas, logrando finalmente una escalada de privilegios a root.
+
+2. Implementación del Parche
+Para mitigar el riesgo de forma permanente, se modificó el código fuente en el archivo crypto/algif_aead.c. El objetivo fue forzar que las operaciones de cifrado y descifrado se realicen out-of-place, separando estrictamente los buffers de origen y destino.
+
+Cambio realizado en la función _aead_recvmsg:
+
+Código Vulnerable:
+
+C
+aead_request_set_crypt(req, rsgl.src, rsgl.src, used, last_iv);
+(Utilizaba rsgl.src tanto para el origen como para el destino).
+
+Código Parcheado:
+
+C
+    aead_request_set_crypt(req, tsgl_src, rsgl_dst, used, last_iv);
+    ```
+    *(Utiliza `tsgl_src` como buffer de entrada y `rsgl_dst` como buffer de salida).*
+
+### 3. Proceso de Aplicación y Compilación
+Tras modificar el código fuente, se procedió a la regeneración completa del núcleo del sistema operativo en el entorno de desarrollo **GitHub Codespaces**:
+
+1.  **Compilación del Kernel**: Se ejecutó el script `./scripts/02_build_kernel.sh`, generando una nueva imagen binaria (`bzImage`) con el parche integrado.
+2.  **Sincronización de RootFS**: Se utilizó `./scripts/03_build_rootfs.sh` para asegurar que la máquina virtual cargara los módulos de criptografía actualizados.
+3.  **Despliegue**: Se inició el entorno de pruebas mediante QEMU con `./scripts/04_run_qemu.sh`.
+
+### 4. Validación de Seguridad
+Se realizó una prueba de regresión utilizando el binario del exploit original. Los resultados confirmaron la efectividad de la mitigación:
+
+*   **Antes del parche**: El exploit mutaba exitosamente el Page Cache y otorgaba una shell con `uid=0(root)`.
+*   **Después del parche**: El exploit es incapaz de ganar la condición de carrera o realizar la escritura en memoria protegida. El sistema deniega la escalada de privilegios, manteniendo al usuario con su identidad original (`student`, `id=1001`) y garantizando la estabilidad del sistema.
+
+---
+**Resultado Final:** El sistema ha sido asegurado exitosamente contra vulnerabiliddades de mutación de memoria en el subsistema de criptografía.
