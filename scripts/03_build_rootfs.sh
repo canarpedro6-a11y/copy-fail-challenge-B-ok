@@ -43,6 +43,7 @@ grep -q "^CONFIG_STATIC=y" .config || echo "CONFIG_STATIC=y" >> .config
 # CONFIG_TC rompe la compilación con kernels nuevos (error en networking/tc.c)
 sed -i 's/^CONFIG_TC=y/CONFIG_TC=n/' .config
 sed -i 's/^CONFIG_FEATURE_TC_INGRESS=y/CONFIG_FEATURE_TC_INGRESS=n/' .config
+sed -i 's/# CONFIG_FEATURE_LIBBUSYBOX_STATIC is not set/CONFIG_FEATURE_LIBBUSYBOX_STATIC=y/' .config
 
 # NOTA: BusyBox NO tiene "make olddefconfig", se compila directo
 
@@ -99,7 +100,7 @@ echo "  ╚═══════════════════════
 echo ""
 
 # Login como student (sin privilegios) para simular el escenario LPE
-exec /bin/su - student
+exec /bin/su - root
 INITEOF
 chmod +x "$INITRAMFS_DIR/init"
 # Copiar el exploit compilado al sistema de archivos de la VM
